@@ -33,7 +33,6 @@ public class ProductsController {
             return productDao.search(categoryId, minPrice, maxPrice, color);
 
         } catch (Exception e) {
-            System.out.println("Error searching products: " + e.getMessage());
             {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while searching for products.");
             }
@@ -59,38 +58,53 @@ public class ProductsController {
     @PreAuthorize("hasRole('ADMIN')")
     public Product addProduct(@RequestBody Product product){
         try {
-            return productDao.create(product);
+            Product productCreate = productDao.create(product);
+            if(productCreate == null)
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            return productCreate;
         }
         catch(Exception e) {
             System.err.println("Error adding product: " + e.getMessage());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while searching for products.");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create product due to an unexpected DAO issue.");
         }
     }
 
     @PutMapping("{productId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ADMIN')")
-    public void updateProduct(@PathVariable int productId, @RequestBody Product product) {
-        try {  //CRUD U = update == put
+    public Product updateProduct(@PathVariable int productId, @RequestBody Product product) {
+        try {
+            if (product.getProductId() != productId) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product ID in path does not match ID in request body.");
+            }
+
             Product existingProduct = productDao.getById(productId);
-                productDao.update(productId, product);
-      } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while searching for products.");
+            if (existingProduct == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product with ID " + productId + " not found for update.");
+            }
+
+            productDao.update(productId, product);
+
+            return productDao.getById(productId);
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while updating the product.");
         }
     }
 
     @DeleteMapping("{productId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteProduct(@PathVariable int productId) {
         try {
             var product = productDao.getById(productId);
             if(product == null)
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product with ID " + productId + " not found.");
             productDao.delete(productId);
         }
         catch(Exception e)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while searching for products.");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while deleting the product.");
         }
     }
 }

@@ -36,7 +36,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
                 categories.add(category);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Database error in getAllCategories(): " + e.getMessage(), e);
         }
         return categories;
         }
@@ -61,7 +61,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
 
             resultSet.close();
         } catch (SQLException e) {
-            e.printStackTrace(); // or handle better
+            throw new RuntimeException("Database error in getIdBy(): " + e.getMessage(), e);
         }
 
         return category;
@@ -80,13 +80,13 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
             preparedStatement.executeUpdate();
 
             ResultSet keys = preparedStatement.getGeneratedKeys();
-            if (keys.next()) {
+            if (!keys.next()) {
                 category.setCategoryId(keys.getInt(1));
             }
 
             keys.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Database error in create(): " + e.getMessage(), e);
         }
         return category;
     }
@@ -105,7 +105,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Database error in update(): " + e.getMessage(), e);
         }
     }
 
@@ -118,9 +118,12 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setInt(1, categoryId);
-            preparedStatement.executeUpdate();
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new RuntimeException("No category updated. ID may not exist: " + categoryId);
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Database error in delete(): " + e.getMessage(), e);
         }
     }
 
@@ -130,14 +133,12 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
         String name = row.getString("name");
         String description = row.getString("description");
 
-        Category category = new Category()
-        {{
-            setCategoryId(categoryId);
-            setName(name);
-            setDescription(description);
-        }};
-
+        Category category = new Category();
+        category.setCategoryId(categoryId);
+        category.setName(name);
+        category.setDescription(description);
         return category;
+
     }
 
 }

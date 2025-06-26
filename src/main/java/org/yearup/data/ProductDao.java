@@ -12,5 +12,5 @@ public interface ProductDao {
     Product getById(int productId);
     Product create(Product product);
     void update(int productId, Product product);
-    void delete(int productId);
+    boolean delete(int productId);
 }
