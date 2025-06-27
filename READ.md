@@ -2,24 +2,11 @@
 
 EasyShop is a Spring Boot-based backend API for an e-commerce application. It connects to a MySQL database and is designed to serve a front-end interface or be tested using tools like Postman.
 
----
-
-## 📚 Table of Contents
-
-1. [Core Technologies](#core-technologies)
-2. [API Endpoints Overview](#api-endpoints-overview)
-    - [CategoriesController](#21-categoriescontroller)
-    - [ProductsController](#22-productscontroller)
-3. [Data Access Layer (DAO)](#data-access-layer-dao)
-    - CategoryDao / MySqlCategoryDao
-    - ProductDao / MySqlProductDao
-4. [Key Spring Annotations](#key-spring-annotations--concepts-explained)
-5. [JDBC Concepts](#jdbc-concepts-explained)
 
 ---
-
 ## 🧰 Core Technologies
-
+- **Java 17**
+- **Apache Maven** (for dependency management and build automation)
 - **Spring Boot** – Robust framework for rapid backend development
 - **MySQL** – Relational database for persistent storage
 - **JDBC** – API for executing SQL queries and handling results
@@ -27,10 +14,25 @@ EasyShop is a Spring Boot-based backend API for an e-commerce application. It co
 - **Postman** – API testing and debugging tool
 
 ---
+## 🚀 Getting Started
+To get the EasyShop API up and running on your local machine, follow these steps.
+
+### Steps:
+
+1.  **Locate the Database Script:**
+    Find the database creation script, named `create_database.sql`. This file is located in a `database/sql` or `src/main/resources/sql` folder within the project directory.
+
+2.  **Execute the SQL Script:**
+    Open your preferred MySQL client and connect to your MySQL server. Then, execute the `create_database.sql` script. This script will:
+  * Create a new database named `easyshop`.
+  * Define all necessary tables (e.g., `categories`, `products`, `users`, etc.).
+  * Populate these tables with initial sample data, including categories, products, and sample user accounts.
+
+---
 
 ## 🔌 API Endpoints Overview
 
-### 2.1. `CategoriesController`
+### 1. `CategoriesController`
 
 Manages all category-related operations.
 
@@ -40,7 +42,7 @@ Manages all category-related operations.
 - `PUT /categories/{categoryId}` — Update a category (ADMIN only)
 - `DELETE /categories/{categoryId}` — Delete a category (ADMIN only)
 
-### 2.2. `ProductsController`
+### 2. `ProductsController`
 
 Handles product-related CRUD and search functionality.
 
@@ -51,6 +53,46 @@ Handles product-related CRUD and search functionality.
 - `DELETE /products/{productId}` — Delete a product (ADMIN only)
 
 ---
+## 🧩 Key Spring Annotations & Concepts Explained
+
+- `@RestController`: Combines `@Controller` and `@ResponseBody` for RESTful APIs.
+- `@RequestMapping`: Sets base URL path for a controller.
+- `@CrossOrigin("*")`: Enables CORS from any origin.
+- `@Autowired`: Injects Spring-managed beans (e.g., DAOs).
+- `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`: HTTP method handlers.
+- `@PathVariable`: Binds URI values to method parameters.
+- `@RequestBody`: Maps JSON payloads to Java objects.
+- `@PreAuthorize("hasRole('ADMIN')")`: Restricts access to endpoints based on user roles.
+
+---
+## 🧪 CRUD Operations Explained
+
+CRUD is an acronym for **Create**, **Read**, **Update**, and **Delete** — the four basic operations for managing persistent data in an application. These operations directly map to HTTP methods and SQL statements in RESTful APIs.
+
+---
+
+### 🟢 1. Create
+
+- **Purpose:** Add new data to the database.
+- **HTTP Method:** `POST`
+- **SQL Command:** `INSERT`
+ 
+ ### 🔵 2. Read
+- **Purpose:** Retrieve existing data.
+- **HTTP Method:** `GET`
+- **SQL Command:** `SELECT`
+
+
+### 🟠 3. Update
+- **Purpose:** Modify existing data.
+- **HTTP Method:** `PUT`
+- **SQL Command:** `UPDATE`
+
+
+### 🔴 4. Delete
+- **Purpose:** Remove data from the database.
+- **HTTP Method:** `DELETE`
+- **SQL Command:** `DELETE`
 
 ## 🗃️ Data Access Layer (DAO)
 
@@ -71,20 +113,6 @@ Each DAO class:
 
 ---
 
-
-## 🧩 Key Spring Annotations & Concepts Explained
-
-- `@RestController`: Combines `@Controller` and `@ResponseBody` for RESTful APIs.
-- `@RequestMapping`: Sets base URL path for a controller.
-- `@CrossOrigin("*")`: Enables CORS from any origin.
-- `@Autowired`: Injects Spring-managed beans (e.g., DAOs).
-- `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`: HTTP method handlers.
-- `@PathVariable`: Binds URI values to method parameters.
-- `@RequestBody`: Maps JSON payloads to Java objects.
-- `@PreAuthorize("hasRole('ADMIN')")`: Restricts access to endpoints based on user roles.
-
----
-
 ## 🧠 JDBC Concepts Explained
 
 - `Connection`: Opens a session to the database.
@@ -94,69 +122,5 @@ Each DAO class:
 
 ---
 
-## 🚀 Getting Started
 
-### Prerequisites
-- Java 17+
-- Maven
-- MySQL Server
-- Postman or a front-end interface
-
-
----
-
-### 2.1. `CategoriesController`
-
-This controller handles operations related to product categories.
-
-#### ✅ Key Annotations Used
-
-- **`@RestController`**  
-  Combines `@Controller` and `@ResponseBody`. It designates the class as a controller where every method returns a domain object instead of a view — ideal for RESTful APIs that respond with JSON.
-
-- **`@RequestMapping("categories")`**  
-  Sets the base path for all endpoints in this controller to `/categories`.  
-  - Example: `@GetMapping("")` maps to `GET /categories`.
-
-- **`@CrossOrigin("*")`**  
-  Enables **Cross-Origin Resource Sharing (CORS)**, allowing requests from any origin (e.g., from a frontend hosted elsewhere).  
-  In production, replace `*` with specific trusted origins like `http://your-frontend.com`.
-
-- **`@Autowired`**  
-  Injects Spring-managed beans (e.g., `CategoryDao`, `ProductDao`) into the controller for database access or business logic.
-
-#### 🧭 Common Mappings
-
-- **`@GetMapping("")`**  
-  Returns a list of all categories.  
-  - URL: `GET /categories`
-
-- **`@PostMapping`**  
-  Adds a new category using data from the request body.  
-  - Requires `@RequestBody Category category` to map JSON input to a Java object.  
-  - URL: `POST /categories` (ADMIN only)
-
-- **`@PutMapping("{categoryId}")`**  
-  Updates a specific category by ID using the request body.  
-  - URL: `PUT /categories/{categoryId}` (ADMIN only)
-
-- **`@DeleteMapping("{categoryId}")`**  
-  Deletes a category by ID after verifying it exists.  
-  - URL: `DELETE /categories/{categoryId}` (ADMIN only)
-
-- **`@GetMapping("{categoryId}/products")`**  
-  Fetches all products belonging to a specific category.  
-  - Uses `@PathVariable int categoryId` to extract the ID from the URL.  
-  - URL: `GET /categories/{categoryId}/products`  
-  - Example: `GET /categories/3/products` returns all products in category 3.
-
-#### 📦 Parameter Binding
-
-- **`@PathVariable`**  
-  Binds a URL segment (e.g., `/categories/5`) to a method parameter.  
-  - Example: `@GetMapping("{categoryId}")` with `@PathVariable int categoryId`
-
-- **`@RequestBody`**  
-  Converts incoming JSON in the HTTP request body into a Java object.  
-  - Common in `POST` and `PUT` requests for creating or updating records.
 
