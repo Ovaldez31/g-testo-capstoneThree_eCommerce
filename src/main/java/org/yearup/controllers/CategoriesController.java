@@ -24,9 +24,9 @@ import java.util.List;
         public CategoriesController(CategoryDao categoryDao, ProductDao productDao) {
             this.categoryDao = categoryDao;
             this.productDao = productDao;
-        } // inject the categoryDao and ProductDao
+        }
 
-        @GetMapping("")// the endpoint
+        @GetMapping("")
         @ResponseStatus(HttpStatus.OK)
         @PreAuthorize("permitAll()")
         public List<Category> getAllCategories() {
@@ -44,8 +44,6 @@ import java.util.List;
         public List<Product> listByCategoryId(@PathVariable int categoryId) {
             try {
                 return productDao.listByCategoryId(categoryId);
-            } catch (ResponseStatusException rse) {
-                throw rse;
             } catch (Exception e) {
                 System.out.println("Error retrieving all categories: " + e.getMessage());
                 throw e;
@@ -59,6 +57,7 @@ import java.util.List;
             try {
                 return categoryDao.create(category);
             } catch (Exception e) {
+                System.out.println("Error adding categories: " + e.getMessage());
                 throw e;
             }
         }
@@ -70,6 +69,7 @@ import java.util.List;
             try {
                 categoryDao.update(categoryId, category);
             } catch (Exception e) {
+                System.out.println("Error updating categoryId: " + e.getMessage());
                 throw e;
             }
         }
